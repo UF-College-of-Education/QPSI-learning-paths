@@ -30,14 +30,25 @@
 class Learning_Paths {
 
 	/**
+	 * The loader that's responsible for registering PHP files to be included in
+	 * the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      Learning_Paths_File_Loader    $file_loader    Registers PHP files to be included
+	 */
+	protected $file_loader;
+
+	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
 	 * the plugin.
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      Learning_Paths_Loader    $loader    Maintains and registers all hooks for the plugin.
+	 * @var      Learning_Paths_Hook_Loader    $hook_loader    Maintains and registers all hooks for the plugin.
 	 */
-	protected $loader;
+	protected $hook_loader;
+
 
 	/**
 	 * The unique identifier of this plugin.
@@ -73,6 +84,7 @@ class Learning_Paths {
 
 		$this->load_dependencies();
 		$this->set_locale();
+		$this->load_includes_files();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
 
@@ -97,10 +109,15 @@ class Learning_Paths {
 	private function load_dependencies() {
 
 		/**
+		 * The class responsible for orchestrating the PHP files included in the plugin
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-learning-paths-file-loader.php';
+
+		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-learning-paths-loader.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-learning-paths-hook-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
@@ -119,8 +136,29 @@ class Learning_Paths {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-learning-paths-public.php';
 
-		$this->loader = new Learning_Paths_Loader();
+		$this->file_loader = new Learning_Paths_File_Loader();
+		$this->hook_loader = new Learning_Paths_Hook_Loader();
 
+	}
+
+	/**
+	 * LOAD INCLUDES FILES
+	 * 
+	 * Defines the include files to be loaded
+	 *
+	 * Load all files in a directory with register_directory( $directory, $recursive = false )
+	 * Load single files with register_file( $file ) 
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function load_includes_files() {
+	
+		$base_url = plugin_dir_path( dirname( __FILE__ ) );
+		$this->file_loader->register_directory($base_url . 'includes/post-types');
+		$this->file_loader->register_directory($base_url . 'includes/shortcodes');
+		$this->file_loader->load();
+	
 	}
 
 	/**
@@ -137,7 +175,7 @@ class Learning_Paths {
 		$plugin_i18n = new Learning_Paths_i18n();
 		$plugin_i18n->set_domain( $this->get_Learning_Paths() );
 
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
+		$this->hook_loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
 
 	}
 
@@ -152,8 +190,8 @@ class Learning_Paths {
 
 		$plugin_admin = new Learning_Paths_Admin( $this->get_Learning_Paths(), $this->get_version() );
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->hook_loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
+		$this->hook_loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 	}
 
@@ -168,8 +206,8 @@ class Learning_Paths {
 
 		$plugin_public = new Learning_Paths_Public( $this->get_Learning_Paths(), $this->get_version() );
 
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		$this->hook_loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
+		$this->hook_loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
 	}
 
@@ -179,7 +217,7 @@ class Learning_Paths {
 	 * @since    1.0.0
 	 */
 	public function run() {
-		$this->loader->run();
+		$this->hook_loader->run();
 	}
 
 	/**
@@ -197,10 +235,10 @@ class Learning_Paths {
 	 * The reference to the class that orchestrates the hooks with the plugin.
 	 *
 	 * @since     1.0.0
-	 * @return    Learning_Paths_Loader    Orchestrates the hooks of the plugin.
+	 * @return    Learning_Paths_Hook_Loader    Orchestrates the hooks of the plugin.
 	 */
 	public function get_loader() {
-		return $this->loader;
+		return $this->hook_loader;
 	}
 
 	/**

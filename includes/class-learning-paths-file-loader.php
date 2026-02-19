@@ -1,9 +1,8 @@
 <?php
 
 /**
- * Register all actions and filters for the plugin
+ * Register files to include in the plugin
  *
- * @link       http://example.com
  * @since      1.0.0
  *
  * @package    Learning_Paths
@@ -11,119 +10,119 @@
  */
 
 /**
- * Register all actions and filters for the plugin.
- *
- * Maintain a list of all hooks that are registered throughout
- * the plugin, and register them with the WordPress API. Call the
- * run function to execute the list of actions and filters.
+ * Include specified files for the plugin.
  *
  * @package    Learning_Paths
  * @subpackage Learning_Paths/includes
  * @author     Jon Walker <jonathan.walker@ufl.edu>
  */
-class Learning_Paths_Loader {
+class Learning_Paths_File_Loader {
 
 	/**
 	 * The array of actions registered with WordPress.
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      array    $actions    The actions registered with WordPress to fire when the plugin loads.
+	 * @var      array    $files    Files to be loaded.
 	 */
-	protected $actions;
+	protected $files=[];
 
 	/**
-	 * The array of filters registered with WordPress.
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      array    $filters    The filters registered with WordPress to fire when the plugin loads.
-	 */
-	protected $filters;
-
-	/**
-	 * Initialize the collections used to maintain the actions and filters.
+	 * Initialize the collection of files to be included in app.
 	 *
 	 * @since    1.0.0
 	 */
 	public function __construct() {
 
-		$this->actions = array();
-		$this->filters = array();
+		$this->files = [];
 
 	}
 
 	/**
-	 * Add a new action to the collection to be registered with WordPress.
+	 * Add files to the collection to be registered to be included.
 	 *
 	 * @since    1.0.0
-	 * @var      string               $hook             The name of the WordPress action that is being registered.
-	 * @var      object               $component        A reference to the instance of the object on which the action is defined.
-	 * @var      string               $callback         The name of the function definition on the $component.
-	 * @var      int      Optional    $priority         The priority at which the function should be fired.
-	 * @var      int      Optional    $accepted_args    The number of arguments that should be passed to the $callback.
+	 * @param string|array 	$file_path 		File path or array of file paths.
 	 */
-	public function add_action( $hook, $component, $callback, $priority = 10, $accepted_args = 1 ) {
-		$this->actions = $this->add( $this->actions, $hook, $component, $callback, $priority, $accepted_args );
-	}
+	public function register( $file_path ) {
+
+        if ( is_array( $file_path ) ) {
+            foreach ( $file_path as $file ) {
+                $this->register_file( $file );
+            }
+        } else {
+            $this->register_file( $file_path );
+        }
+
+    }
 
 	/**
-	 * Add a new filter to the collection to be registered with WordPress.
-	 *
-	 * @since    1.0.0
-	 * @var      string               $hook             The name of the WordPress filter that is being registered.
-	 * @var      object               $component        A reference to the instance of the object on which the filter is defined.
-	 * @var      string               $callback         The name of the function definition on the $component.
-	 * @var      int      Optional    $priority         The priority at which the function should be fired.
-	 * @var      int      Optional    $accepted_args    The number of arguments that should be passed to the $callback.
-	 */
-	public function add_filter( $hook, $component, $callback, $priority = 10, $accepted_args = 1 ) {
-		$this->filters = $this->add( $this->filters, $hook, $component, $callback, $priority, $accepted_args );
+     * Register all PHP files inside folder automatically for inclusion.
+     *
+     * @param string 	$directory 	Directory path.
+     * @param bool 		$recursive 	Whether to scan sub-folders within main folder.
+     */
+    public function register_directory( $directory, $recursive = false ) {
+
+        if ( ! is_dir( $directory ) ) {
+            error_log( 'Plugin Loader Error: Directory not found - ' . $directory );
+            return;
+        }
+
+        $files = $recursive
+            ? $this->get_php_files_recursive( $directory )
+            : glob( trailingslashit( $directory ) . '*.php' );
+
+        foreach ( $files as $file ) {
+            $this->register_file( $file );
+        }
+    
 	}
+
+    /**
+     * Register a single file.
+	 * 
+	 * @param string 	$file 	File to be added to 
+     */
+    protected function register_file( $file ) {
+
+        if ( file_exists( $file ) ) {
+            $this->files[] = $file;
+        } else {
+            error_log( 'Plugin Loader Error: File not found - ' . $file );
+        }
+
+    }
+
+    /**
+     * Recursively get all PHP files in a directory.
+	 * 
+	 * @param string $directory	Path to the directory
+     */
+    protected function get_php_files_recursive( $directory ) {
+
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator( $directory )
+        );
+        $php_files = [];
+
+        foreach ( $iterator as $file ) {
+            if ( $file->isFile() && strtolower( $file->getExtension() ) === 'php' ) {
+                $php_files[] = $file->getRealPath();
+            }
+        }
+
+        return $php_files;
+
+    }
 
 	/**
-	 * A utility function that is used to register the actions and hooks into a single
-	 * collection.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      array                $hooks            The collection of hooks that is being registered (that is, actions or filters).
-	 * @var      string               $hook             The name of the WordPress filter that is being registered.
-	 * @var      object               $component        A reference to the instance of the object on which the filter is defined.
-	 * @var      string               $callback         The name of the function definition on the $component.
-	 * @var      int      Optional    $priority         The priority at which the function should be fired.
-	 * @var      int      Optional    $accepted_args    The number of arguments that should be passed to the $callback.
-	 * @return   type                                   The collection of actions and filters registered with WordPress.
-	 */
-	private function add( $hooks, $hook, $component, $callback, $priority, $accepted_args ) {
-
-		$hooks[] = array(
-			'hook'          => $hook,
-			'component'     => $component,
-			'callback'      => $callback,
-			'priority'      => $priority,
-			'accepted_args' => $accepted_args
-		);
-
-		return $hooks;
-
-	}
-
-	/**
-	 * Register the filters and actions with WordPress.
-	 *
-	 * @since    1.0.0
-	 */
-	public function run() {
-
-		foreach ( $this->filters as $hook ) {
-			add_filter( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
-		}
-
-		foreach ( $this->actions as $hook ) {
-			add_action( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
-		}
-
-	}
+     * Load all registered files.
+     */
+    public function load() {
+        foreach ( $this->files as $file ) {
+            require_once $file;
+        }
+    }
 
 }
