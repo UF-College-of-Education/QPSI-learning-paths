@@ -41,3 +41,32 @@ $learning_path_post_type = new Learning_Paths_Post_Type('learning_path',
     false
 );
 
+/**
+ * Learning Node Posts
+ * 
+ * These are the slides in the Learning Path that are not resources.
+ */
+$learning_node_post_type = new Learning_Paths_Post_Type( 'learning_node', [
+    'labels' => [
+        'name'               => 'Learning Nodes',
+        'singular_name'      => 'Learning Node',
+        'add_new_item'       => 'Add New Learning Node',
+        'edit_item'          => 'Edit Learning Node',
+        'new_item'           => 'New Learning Node',
+        'view_item'          => 'View Learning Node',
+        'search_items'       => 'Search Learning Nodes',
+        'not_found'          => 'No learning nodes found',
+        'not_found_in_trash' => 'No learning nodes found in Trash',
+    ],
+    'description'         => 'A single slide or node within a learning path.',
+    'public'              => false,
+    'publicly_queryable'  => false,
+    'show_ui'             => true,
+    'show_in_menu'        => false,
+    'show_in_nav_menus'   => false,
+    'exclude_from_search' => true,
+    'has_archive'         => false,
+    'show_in_rest'        => true,
+    'capability_type'     => 'post',
+    'supports'            => [ 'title', 'editor', 'revisions', 'custom-fields', 'author' ],
+] );
