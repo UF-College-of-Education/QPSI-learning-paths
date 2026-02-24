@@ -1,0 +1,27 @@
+{
+  "name": "qpsi-learning-paths",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "wp-scripts build",
+    "dev": "wp-scripts start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UF-College-of-Education/QPSI-learning-paths.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UF-College-of-Education/QPSI-learning-paths/issues"
+  },
+  "homepage": "https://github.com/UF-College-of-Education/QPSI-learning-paths#readme",
+  "description": "",
+  "devDependencies": {
+    "@wordpress/scripts": "^31.5.0",
+    "webpack": "^5.105.2",
+    "webpack-cli": "^6.0.1"
+  }
+}

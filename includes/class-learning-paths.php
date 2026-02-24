@@ -49,7 +49,6 @@ class Learning_Paths {
 	 */
 	protected $hook_loader;
 
-
 	/**
 	 * The unique identifier of this plugin.
 	 *
@@ -136,6 +135,11 @@ class Learning_Paths {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-learning-paths-public.php';
 
+		/**
+		 * The class responsible for the learning path editor meta box and assets.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-learning-paths-editor.php';
+
 		$this->file_loader = new Learning_Paths_File_Loader();
 		$this->hook_loader = new Learning_Paths_Hook_Loader();
 
@@ -193,6 +197,11 @@ class Learning_Paths {
 		$this->hook_loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->hook_loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
+		$plugin_editor = new Learning_Paths_Editor( $this->get_Learning_Paths(), $this->get_version() );
+
+		$this->hook_loader->add_action( 'add_meta_boxes', $plugin_editor, 'register_meta_box' );
+		$this->hook_loader->add_action( 'admin_enqueue_scripts', $plugin_editor, 'enqueue_editor_assets' );
+		$this->hook_loader->add_action( 'save_post', $plugin_editor, 'save_sequence' );
 	}
 
 	/**

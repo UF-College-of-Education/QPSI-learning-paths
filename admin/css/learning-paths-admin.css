@@ -2,3 +2,124 @@
  * All of the CSS for your dashboard-specific functionality should be
  * included in this file.
  */
+ .lp-editor {
+    padding: 2rem 1rem;
+    display: grid;
+    grid-template: auto / 3fr 7fr;
+    column-gap: 1rem;
+}
+
+.lp-slide-panel__header {
+    display: grid;
+    grid-template: auto / auto 24px;
+    margin-bottom: 1rem;
+}
+
+#learning-paths-editor h2.lp-slide-panel__title {
+    padding: 0;
+}
+
+.lp-slide-panel {
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    padding: 1rem 2rem 2rem;
+}
+
+.lp-slide-list {
+    margin-top: 0;
+}
+
+/*== Slide Items ==*/
+
+li.lp-slide-item {
+    margin-bottom: 1rem;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    padding: 1rem;
+    position: relative;
+}
+
+li.lp-slide-item.lp-slide-item--active {
+    border: 3px solid #2271b1;
+}
+
+span.lp-slide-item__index {
+    margin-right: 1rem;
+    font-weight: 700;
+}
+
+.lp-slide-item__controls {
+    margin-top: 1rem;
+}
+
+button.components-button.is-small.is-destructive.has-icon {
+    position: absolute;
+    right: 1rem;
+    top: 2rem;
+}
+
+.lp-slide-item__info {
+    padding-right: 2rem;
+    cursor: pointer;
+}
+
+/*== Slide Form ==*/
+
+.lp-editor .components-radio-control,
+.lp-slide-form .components-select-control,
+.lp-slide-form .lp-image-picker__controls {
+    margin-bottom: 2rem;
+}
+
+/* == Resource Search ==*/
+
+li.lp-resource-search__item {
+    padding: 1rem;
+    border: 1px solid #bbb;
+}
+
+li.lp-resource-search__item--selected {
+    border: 3px solid #2271b1;
+}
+
+.lp-resource-search__pagination {
+    margin: 1rem 0;
+}
+
+/* Pagination */
+.lp-resource-search__pagination {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem 1rem 1.5rem;
+}
+
+button.lp-resource-search__pagination-btn {
+    background: #fff;
+    border: 0;
+}
+
+/*== Slide Node Form ==*/
+label.lp-slide-form__label.title,
+label.lp-slide-form__label.content {
+    display: block;
+}
+
+.lp-slide-form__content-fields .lp-slide-form__field {
+    margin-bottom: 1.5rem;
+}
+
+.lp-slide-form__content-fields .lp-slide-form__input, 
+.lp-slide-form__content-fields .lp-slide-form__textarea {
+    min-width: 500px;
+}
+
+.lp-slide-form__success {
+    background-color: #D8F9D7;
+    font-weight: 600;
+    color: #000;
+    padding: 1rem;
+    border-radius: 8px;
+    width: fit-content;
+    max-width: 100%;
+    font-size: 0.9rem;
+}
