@@ -12,15 +12,44 @@
  class Learning_Paths_Post_Type {
     protected string $post_type;
     protected array $args;
+    protected $custom_post_meta;
 
-    public function __construct( $post_type, $args) {
+    public function __construct( 
+        $post_type, 
+        $args, 
+        $custom_post_meta = false, 
+    ) {
         $this->post_type = $post_type;
         $this->args = $args;
+        $this->custom_post_meta = $custom_post_meta ;
+        $this->gutenberg_enabled = $gutenberg_enabled;
 
         add_action('init', [$this, 'register']);
-    }
 
+        if ( $this->custom_post_meta !== false ) { 
+            add_action( 'init', [ $this, 'register_custom_meta' ] ); 
+        }
+
+
+    /**
+     * Register post type.
+     */
     public function register() {
         register_post_type($this->post_type, $this->args);
     }
+
+    /**
+     * Register post meta for this post type.
+     */
+    public function register_custom_meta( ) {
+        if ( empty( $this->custom_post_meta['key'] ) || empty( $this->custom_post_meta['args'] ) ) {
+            return;
+        }
+        register_post_meta( 
+            $this->post_type, 
+            $this->custom_post_meta['key'], 
+            $this->custom_post_meta['args'] 
+        );
+    }
+
 }
