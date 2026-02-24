@@ -13,11 +13,13 @@
     protected string $post_type;
     protected array $args;
     protected $custom_post_meta;
+    protected bool $gutenberg_enabled;
 
     public function __construct( 
         $post_type, 
         $args, 
         $custom_post_meta = false, 
+        $gutenberg_enabled = true
     ) {
         $this->post_type = $post_type;
         $this->args = $args;
@@ -30,6 +32,13 @@
             add_action( 'init', [ $this, 'register_custom_meta' ] ); 
         }
 
+        if (! $this->gutenberg_enabled ) { 
+            add_filter( 'use_block_editor_for_post_type', 
+            function( bool $use_block_editor, string $post_type ) {
+                return $post_type === $this->post_type ? false : $use_block_editor;
+            }, 10, 2 );
+        }
+    }
 
     /**
      * Register post type.
