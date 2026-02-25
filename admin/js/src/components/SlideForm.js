@@ -13,7 +13,7 @@ import { useState } from '@wordpress/element';
 import { Button, RadioControl, SelectControl, Spinner } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import ResourceSearch from './ResourceSearch';
-import ImagePicker from './ImagePicker';
+import { ContentSlideForm } from './ContentSlideForm';
 
 /**
  * Hardcoded list of available templates.
@@ -35,6 +35,7 @@ const SLIDE_TYPES = [
  * @param {object}      slide       This instance of the slide component
  * @param {function}    onUpdate
  * @param {function}    onClose
+ *  
  */
 
 export default function SlideForm( { slide, onConfirm, onClose } ) {
@@ -44,9 +45,11 @@ export default function SlideForm( { slide, onConfirm, onClose } ) {
     const [ selectedPost, setSelectedPost ]         = useState(
         slide.id ? { id: slide.id, title: { rendered: slide.title } } : null
     );
+    // TODO Combine separate content states into single state
     const [ contentTitle, setContentTitle ]         = useState( slide.title || '' );
     const [ contentBody, setContentBody ]           = useState( slide.content || '' );
     const [ imageId, setImageId ]                   = useState( slide.imageId || null );
+    
     const [ isSaving, setIsSaving ]                 = useState( false );
     const [ error, setError ]                       = useState( null );
     const [ success, setSuccess ]                   = useState( false );
@@ -91,6 +94,26 @@ export default function SlideForm( { slide, onConfirm, onClose } ) {
             template: selectedTemplate,
             title:    selectedPost.title.rendered,
         } );
+    }
+
+    /**
+     * Handle content slide updates
+     */
+    function handleContentSlideUpdate(field, update) {
+        switch (field) {
+            case 'title':
+                setContentTitle(update);
+                break;
+            case 'body':
+                setContentBody(update);
+                break;
+            case 'image':
+                setImageId(update);
+                break;
+            
+            default:
+                break;
+        }
     }
 
     /**
@@ -191,39 +214,13 @@ export default function SlideForm( { slide, onConfirm, onClose } ) {
             ) }
 
             { selectedType === 'learning_node' && (
-                <div className="lp-slide-form__content-fields">
-                    <div className="lp-slide-form__field">
-                        <label htmlFor="lp-content-title" className="lp-slide-form__label title">
-                            { 'Title' }
-                        </label>
-                        <input
-                            id="lp-content-title"
-                            type="text"
-                            className="lp-slide-form__input title"
-                            value={ contentTitle }
-                            onChange={ ( e ) => setContentTitle( e.target.value ) }
-                            placeholder="Enter slide title..."
-                        />
-                    </div>
-                    <div className="lp-slide-form__field content">
-                        <label htmlFor="lp-content-body" className="lp-slide-form__label content">
-                            { 'Content' }
-                        </label>
-                        <textarea
-                            id="lp-content-body"
-                            className="lp-slide-form__textarea content"
-                            value={ contentBody }
-                            onChange={ ( e ) => setContentBody( e.target.value ) }
-                            placeholder="Enter slide content..."
-                            rows={ 6 }
-                        />
-                    </div>
-                    <ImagePicker
-                        imageId={ imageId }
-                        onSelect={ setImageId }
-                        onRemove={ () => setImageId( null ) }
-                    />
-                </div>
+                <ContentSlideForm 
+                    contentTitle = { contentTitle }
+                    contentBody = { contentBody }
+                    imageId = { imageId }
+                    
+                    onContentUpdate = { handleContentSlideUpdate }
+                />
             ) }
 
             { selectedType && (
