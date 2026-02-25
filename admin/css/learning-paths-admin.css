@@ -100,7 +100,9 @@ button.lp-resource-search__pagination-btn {
 
 /*== Slide Node Form ==*/
 label.lp-slide-form__label.title,
-label.lp-slide-form__label.content {
+label.lp-slide-form__label.content,
+label.lp-slide-form__label.video-embed,
+label.lp-slide-form__label.video-transcript {
     display: block;
 }
 
