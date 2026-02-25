@@ -1,11 +1,15 @@
 /**
  * Form field for creating the learning node.
  * 
- * @var {}
+ * @var {string}    contentTitle
+ * @var {string}    contentBody
+ * @var {int}       imageId
+ * @var {string}    videoEmbed
+ * @var {string}    videoTranscript
  */
 import ImagePicker from './ImagePicker';
 
-export function ContentSlideForm({ contentTitle, contentBody, imageId, onContentUpdate }) {
+export function ContentSlideForm({ contentTitle, contentBody, imageId, videoEmbed, videoTranscript, onContentUpdate }) {
 
     return (
         <div className="lp-slide-form__content-fields">
@@ -40,7 +44,32 @@ export function ContentSlideForm({ contentTitle, contentBody, imageId, onContent
                 onSelect={ (imageId) => onContentUpdate('image', imageId) }
                 onRemove={ () => onContentUpdate( 'image', null ) }
             />
-            
+            <div className="lp-slide-form__field videoEmbed">
+                <label htmlFor="lp-video-embed" className="lp-slide-form__label video-embed">
+                    { 'Video Embed Code (Optional)' }
+                </label>
+                <textarea
+                    id="lp-video-embed"
+                    className="lp-slide-form__textarea video-embed"
+                    value={ videoEmbed }
+                    onChange={ ( e ) => onContentUpdate( 'videoEmbed',  e.target.value ) }
+                    placeholder="Enter video embed code here..."
+                    rows={ 3 }
+                />
+            </div>
+            <div className="lp-slide-form__field videoTranscript">
+                <label htmlFor="lp-video-transcript" className="lp-slide-form__label video-transcript">
+                    { 'Video Transcript (Optional)' }
+                </label>
+                <textarea
+                    id="lp-video-transcript"
+                    className="lp-slide-form__textarea video-transcript"
+                    value={ videoTranscript }
+                    onChange={ ( e ) => onContentUpdate( 'videoTranscript',  e.target.value ) }
+                    placeholder="Enter video transcript code here..."
+                    rows={ 3 }
+                />
+            </div>
         </div>
     );
 }

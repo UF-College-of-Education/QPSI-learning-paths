@@ -49,7 +49,8 @@ export default function SlideForm( { slide, onConfirm, onClose } ) {
     const [ contentTitle, setContentTitle ]         = useState( slide.title || '' );
     const [ contentBody, setContentBody ]           = useState( slide.content || '' );
     const [ imageId, setImageId ]                   = useState( slide.imageId || null );
-    
+    const [ videoEmbed, setVideoEmbed ]             = useState( null );
+    const [ videoTranscript, setVideoTranscript ]   = useState( '' );
     const [ isSaving, setIsSaving ]                 = useState( false );
     const [ error, setError ]                       = useState( null );
     const [ success, setSuccess ]                   = useState( false );
@@ -110,7 +111,12 @@ export default function SlideForm( { slide, onConfirm, onClose } ) {
             case 'image':
                 setImageId(update);
                 break;
-            
+            case 'videoEmbed':
+                setVideoEmbed(update);
+                break;
+            case 'videoTranscript':
+                setVideoTranscript(update);
+                break;
             default:
                 break;
         }
@@ -218,7 +224,8 @@ export default function SlideForm( { slide, onConfirm, onClose } ) {
                     contentTitle = { contentTitle }
                     contentBody = { contentBody }
                     imageId = { imageId }
-                    
+                    videoEmbed = { videoEmbed }
+                    videoTranscript  =  {videoTranscript }
                     onContentUpdate = { handleContentSlideUpdate }
                 />
             ) }
