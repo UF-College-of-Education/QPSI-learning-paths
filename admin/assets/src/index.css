@@ -1,6 +1,6 @@
 /**
- * All of the CSS for your dashboard-specific functionality should be
- * included in this file.
+ * Dashboard related styles
+ * Add imports at top for compilation
  */
  .lp-editor {
     padding: 2rem 1rem;

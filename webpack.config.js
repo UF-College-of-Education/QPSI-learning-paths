@@ -8,10 +8,10 @@ const path = require('path');
 const adminConfig = {
     ...defaultConfig,
     entry: {
-        'learning-paths-admin': './admin/js/src/index.js',
+        'learning-paths-admin': './admin/assets/src/index.js',
     },
     output: {
-        path: path.resolve(__dirname, 'admin/js'),
+        path: path.resolve(__dirname, 'admin/assets'),
         filename: '[name].js',
     },
 };
@@ -19,10 +19,10 @@ const adminConfig = {
 const publicConfig = {
     ...defaultConfig,
     entry: {
-        'learning-paths-public': './public/js/src/index.js',
+        'learning-paths-public': './public/assets/src/index.js',
     },
     output: {
-        path: path.resolve(__dirname, 'public/js'),
+        path: path.resolve(__dirname, 'public/assets'),
         filename: '[name].js',
     },
 };

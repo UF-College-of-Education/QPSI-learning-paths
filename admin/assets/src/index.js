@@ -7,6 +7,15 @@
  * @package Learning_Paths
  */
 
+/**
+ * Compile CSS
+ */
+import './index.css';
+
+/**
+ * JS Begins
+ */
+
 import { createRoot } from '@wordpress/element';
 import LearningPathEditor from './components/LearningPathEditor';
 

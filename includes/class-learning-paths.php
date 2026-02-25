@@ -195,7 +195,6 @@ class Learning_Paths {
 		$plugin_admin = new Learning_Paths_Admin( $this->get_Learning_Paths(), $this->get_version() );
 
 		$this->hook_loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->hook_loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 		$plugin_editor = new Learning_Paths_Editor( $this->get_Learning_Paths(), $this->get_version() );
 

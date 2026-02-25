@@ -96,7 +96,7 @@ class Learning_Paths_Editor {
             return;
         }
 
-        $asset_file = plugin_dir_path( dirname( __FILE__ ) ) . 'admin/js/learning-paths-admin.asset.php';
+        $asset_file = plugin_dir_path( dirname( __FILE__ ) ) . 'admin/assets/learning-paths-admin.asset.php';
 
         if ( ! file_exists( $asset_file ) ) {
             return;
@@ -108,7 +108,7 @@ class Learning_Paths_Editor {
 
         wp_enqueue_script(
             $this->name . '-editor',
-            plugin_dir_url( dirname( __FILE__ ) ) . 'admin/js/learning-paths-admin.js',
+            plugin_dir_url( dirname( __FILE__ ) ) . 'admin/assets/learning-paths-admin.js',
             $asset['dependencies'],
             $asset['version'],
             true
