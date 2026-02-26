@@ -217,6 +217,8 @@ class Learning_Paths {
 		$this->hook_loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->hook_loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
+		$slider_shortcode = new Learning_Path_Slider_Shortcode();
+	    $this->hook_loader->add_action( 'init', $slider_shortcode, 'register' );
 	}
 
 	/**

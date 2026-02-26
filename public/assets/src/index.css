@@ -1,0 +1,32 @@
+.lp-slide-content__transcripts,
+.lp-slide-content__title,
+.lp-slide-content__body {
+    margin: 1rem auto;
+}
+
+.lp-slide-content__image-wrap img {
+    border: 1px solid #ccc;
+    max-height: 60vh;
+    width: auto;
+}
+
+.lp-slide-content.default {
+    padding: 0 60px;
+}
+
+/*== PROGRESS METER ==*/
+/* #lp-progress {
+    height: 16px;
+    background: #ddd;
+    border-radius: 8px;
+    padding: 2px;
+}
+
+#lp-progress-inner {
+    height: 100%;
+    line-height: 0;
+    width: 2%;
+    transition: width 300ms;
+    background: #002657;
+    border-radius: 8px;
+} */
