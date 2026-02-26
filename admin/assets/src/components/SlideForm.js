@@ -49,8 +49,8 @@ export default function SlideForm( { slide, onConfirm, onClose } ) {
     const [ contentTitle, setContentTitle ]         = useState( slide.title || '' );
     const [ contentBody, setContentBody ]           = useState( slide.content || '' );
     const [ imageId, setImageId ]                   = useState( slide.imageId || null );
-    const [ videoEmbed, setVideoEmbed ]             = useState( null );
-    const [ videoTranscript, setVideoTranscript ]   = useState( '' );
+    const [ videoEmbed, setVideoEmbed ]             = useState( slide.videoEmbed || '' );
+    const [ videoTranscript, setVideoTranscript ]   = useState(  slide.videoTranscript || '' );
     const [ isSaving, setIsSaving ]                 = useState( false );
     const [ error, setError ]                       = useState( null );
     const [ success, setSuccess ]                   = useState( false );
@@ -67,6 +67,8 @@ export default function SlideForm( { slide, onConfirm, onClose } ) {
         setContentTitle('');
         setContentBody( '' );
         setImageId( null );
+        setVideoEmbed('');
+        setVideoTranscript('');
         setError( null );
         setSuccess( false );
     }
@@ -147,16 +149,23 @@ export default function SlideForm( { slide, onConfirm, onClose } ) {
                     title:   contentTitle,
                     content: contentBody,
                     status:  'publish',
+                    meta: {
+                        _lp_image_id:         imageId ?? 0,
+                        _lp_video_embed:      videoEmbed,
+                        _lp_video_transcript: videoTranscript,
+                    },
                 },
             } );
 
             onConfirm( {
-                id:       response.id,
-                type:     'learning_node',
-                template: selectedTemplate,
-                title:    contentTitle,
-                content:  contentBody,
-                imageId:  imageId,
+                id:             response.id,
+                type:           'learning_node',
+                template:       selectedTemplate,
+                title:          contentTitle,
+                content:        contentBody,
+                imageId:        imageId,
+                videoEmbed:     videoEmbed,
+                videoTranscript:videoTranscript
             }, false ); // false = don't close panel
 
             setSuccess( true );
