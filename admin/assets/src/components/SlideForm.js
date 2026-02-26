@@ -187,11 +187,6 @@ export default function SlideForm( { slide, onConfirm, onClose } ) {
 
     return (
         <div className="lp-slide-form">
-            { success && (
-                <p className="lp-slide-form__success">
-                    { 'Content slide saved successfully. Be sure to save the post, too!' }
-                </p>
-            ) }
 
             { error && (
                 <p className="lp-slide-form__error">{ error }</p>
@@ -246,6 +241,12 @@ export default function SlideForm( { slide, onConfirm, onClose } ) {
                         { 'Cancel' }
                     </Button>
                 </div>
+            ) }
+
+            { success && (
+                <p className="lp-slide-form__success">
+                    { 'Content slide saved successfully. Be sure to save the post, too!' }
+                </p>
             ) }
         </div>
     );
