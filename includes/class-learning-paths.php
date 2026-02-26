@@ -79,7 +79,7 @@ class Learning_Paths {
 	public function __construct() {
 
 		$this->Learning_Paths = 'learning-paths';
-		$this->version = '1.0.0';
+		$this->version = '1.0.1';
 
 		$this->load_dependencies();
 		$this->set_locale();
