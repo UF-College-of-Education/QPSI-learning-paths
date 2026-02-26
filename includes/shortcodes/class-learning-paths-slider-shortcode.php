@@ -62,7 +62,7 @@ class Learning_Path_Slider_Shortcode extends Learning_Paths_Shortcode {
 
         $post = get_post( $post_id );
 
-        if ( ! $post || $post->post_type !== 'learning_path' || $post->post_status !== 'publish' ) {
+        if ( ! $post || $post->post_type !== 'learning_path' ) {
             return '';
         }
 
