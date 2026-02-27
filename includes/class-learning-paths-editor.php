@@ -96,7 +96,7 @@ class Learning_Paths_Editor {
             return;
         }
 
-        $asset_file = plugin_dir_path( dirname( __FILE__ ) ) . 'admin/js/learning-paths-admin.asset.php';
+        $asset_file = plugin_dir_path( dirname( __FILE__ ) ) . 'admin/assets/learning-paths-admin.asset.php';
 
         if ( ! file_exists( $asset_file ) ) {
             return;
@@ -108,7 +108,7 @@ class Learning_Paths_Editor {
 
         wp_enqueue_script(
             $this->name . '-editor',
-            plugin_dir_url( dirname( __FILE__ ) ) . 'admin/js/learning-paths-admin.js',
+            plugin_dir_url( dirname( __FILE__ ) ) . 'admin/assets/learning-paths-admin.js',
             $asset['dependencies'],
             $asset['version'],
             true
@@ -116,7 +116,18 @@ class Learning_Paths_Editor {
 
         global $post;
         $sequence_raw = get_post_meta( $post->ID, $this->meta_key, true );
-        $sequence     = $sequence_raw ? json_decode( $sequence_raw ) : [];
+        $sequence     = [];
+
+        if ( $sequence_raw ) {
+            $decoded = json_decode( $sequence_raw, true );
+            if ( json_last_error() === JSON_ERROR_NONE && is_array( $decoded ) ) {
+                $sequence = $decoded;
+            }
+        }
+
+        if ( json_last_error() !== JSON_ERROR_NONE ) {
+            error_log( 'Learning Paths sequence decode error: ' . json_last_error_msg() );
+        }
 
         wp_localize_script(
             $this->name . '-editor',
@@ -154,16 +165,17 @@ class Learning_Paths_Editor {
         if ( ! isset( $_POST['learning_path_sequence'] ) ) {
             return;
         }
-
-        $sequence = wp_unslash( $_POST['learning_path_sequence'] );
-
-        // Validate that the value is valid JSON before saving.
-        json_decode( $sequence );
+    
+        $sequence_raw = wp_unslash( $_POST['learning_path_sequence'] );
+    
+        $decoded = json_decode( $sequence_raw, true );
         if ( json_last_error() !== JSON_ERROR_NONE ) {
             return;
         }
+    
+        // Re-encode to guarantee clean, normalized JSON before storing.
+        update_post_meta( $post_id, $this->meta_key, wp_slash( json_encode( $decoded ) ) );
 
-        update_post_meta( $post_id, $this->meta_key, $sequence );
     }
 
 }

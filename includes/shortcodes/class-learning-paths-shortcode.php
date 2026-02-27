@@ -41,8 +41,6 @@ class Learning_Paths_Shortcode {
     public function __construct( $tag, $defaults = [] ) {
         $this->tag      = $tag;
         $this->defaults = $defaults;
-
-        add_shortcode( $this->tag, [ $this, 'render' ] );
     }
 
     /**
@@ -57,6 +55,15 @@ class Learning_Paths_Shortcode {
     public function render( $atts, $content = null ) {
         $atts = shortcode_atts( $this->defaults, $atts, $this->tag );
         return '';
+    }
+
+    /**
+     * Register the shortcode
+     *
+     * @return void
+     */
+    public function register() {
+        add_shortcode( $this->tag, [ $this, 'render' ] );
     }
 
 }
