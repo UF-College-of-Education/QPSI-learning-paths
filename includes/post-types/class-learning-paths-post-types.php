@@ -50,15 +50,22 @@
     /**
      * Register post meta for this post type.
      */
-    public function register_custom_meta( ) {
-        if ( empty( $this->custom_post_meta['key'] ) || empty( $this->custom_post_meta['args'] ) ) {
+    public function register_custom_meta() {
+        if ( empty( $this->custom_post_meta ) ) {
             return;
         }
-        register_post_meta( 
-            $this->post_type, 
-            $this->custom_post_meta['key'], 
-            $this->custom_post_meta['args'] 
-        );
+    
+        // Support both a single field and an array of fields.
+        $fields = isset( $this->custom_post_meta['key'] )
+            ? [ $this->custom_post_meta ]
+            : $this->custom_post_meta;
+    
+        foreach ( $fields as $field ) {
+            if ( empty( $field['key'] ) || empty( $field['args'] ) ) {
+                continue;
+            }
+            register_post_meta( $this->post_type, $field['key'], $field['args'] );
+        }
     }
 
 }

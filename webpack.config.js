@@ -5,11 +5,26 @@
 const defaultConfig = require('@wordpress/scripts/config/webpack.config');
 const path = require('path');
 
-module.exports = {
+const adminConfig = {
     ...defaultConfig,
-    entry: './admin/js/src/index.js',
+    entry: {
+        'learning-paths-admin': './admin/assets/src/index.js',
+    },
     output: {
-        path: path.resolve(__dirname, 'admin/js'),
-        filename: 'learning-paths-admin.js'
-    }
+        path: path.resolve(__dirname, 'admin/assets'),
+        filename: '[name].js',
+    },
 };
+
+const publicConfig = {
+    ...defaultConfig,
+    entry: {
+        'learning-paths-public': './public/assets/src/index.js',
+    },
+    output: {
+        path: path.resolve(__dirname, 'public/assets'),
+        filename: '[name].js',
+    },
+};
+
+module.exports = [ adminConfig, publicConfig ];

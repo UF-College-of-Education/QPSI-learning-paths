@@ -73,7 +73,7 @@ class Learning_Paths_Public {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->name, plugin_dir_url( __FILE__ ) . 'css/learning-paths-public.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->name, plugin_dir_url( __FILE__ ) . 'assets/learning-paths-public.css', array(), $this->version, 'all' );
 
 	}
 
@@ -96,7 +96,7 @@ class Learning_Paths_Public {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->name, plugin_dir_url( __FILE__ ) . 'js/learning-paths-public.js', array( 'jquery' ), $this->version, FALSE );
+		wp_enqueue_script( $this->name, plugin_dir_url( __FILE__ ) . 'assets/learning-paths-public.js', array( 'jquery' ), $this->version, FALSE );
 
 	}
 

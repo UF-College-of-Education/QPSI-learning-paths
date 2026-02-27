@@ -73,30 +73,7 @@ class Learning_Paths_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->name, plugin_dir_url( __FILE__ ) . 'css/learning-paths-admin.css', array(), $this->version, 'all' );
-
-	}
-
-	/**
-	 * Register the JavaScript for the dashboard.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_scripts() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Learning_Paths_Admin_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Learning_Paths_Admin_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_script( $this->name, plugin_dir_url( __FILE__ ) . 'js/learning-paths-admin.js', array( 'jquery' ), $this->version, FALSE );
+		wp_enqueue_style( $this->name, plugin_dir_url( __FILE__ ) . 'assets/learning-paths-admin.css', array(), $this->version, 'all' );
 
 	}
 

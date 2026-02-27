@@ -23,5 +23,8 @@
     "@wordpress/scripts": "^31.5.0",
     "webpack": "^5.105.2",
     "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "@splidejs/splide": "^4.1.4"
   }
 }

@@ -2,6 +2,11 @@ LICENSE.txt
 LICENSE
 .DS_Store
 node_modules
-admin/js/learning-paths-admin.js
-admin/js/learning-paths-admin.asset.php
-admin/js/learning-paths-admin.js.map
+admin/assets/*.js
+admin/assets/*.js.map
+admin/assets/*.css
+admin/assets/*.css.map
+public/assets/*.js
+public/assets/*.js.map
+public/assets/*.css
+public/assets/*.css.map

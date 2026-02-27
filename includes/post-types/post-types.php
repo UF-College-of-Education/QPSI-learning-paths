@@ -69,4 +69,39 @@ $learning_node_post_type = new Learning_Paths_Post_Type( 'learning_node', [
     'show_in_rest'        => true,
     'capability_type'     => 'post',
     'supports'            => [ 'title', 'editor', 'revisions', 'custom-fields', 'author' ],
+],
+[
+    [
+        'key'  => '_lp_image_id',
+        'args' => [ 
+            'show_in_rest' => true,
+                'single' => true,
+                'type' => 'integer',
+                'auth_callback' => function() {
+                    return current_user_can( 'edit_posts' );
+                },
+            ],
+    ],
+    [
+        'key'  => '_lp_video_embed',
+        'args' => [ 
+            'show_in_rest' => true,
+                'single' => true,
+                'type' => 'string',
+                'auth_callback' => function() {
+                    return current_user_can( 'edit_posts' );
+                },
+            ],
+    ],
+    [
+        'key'  => '_lp_video_transcript',
+        'args' => [ 
+            'show_in_rest' => true,
+                'single' => true,
+                'type' => 'string',
+                'auth_callback' => function() {
+                    return current_user_can( 'edit_posts' );
+                },
+            ],
+    ],
 ] );
