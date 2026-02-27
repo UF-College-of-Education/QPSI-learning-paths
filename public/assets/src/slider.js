@@ -15,9 +15,10 @@ import Splide from '@splidejs/splide';
  */
 export function initSliders() {
     const sliders = document.querySelectorAll( '.lp-slider' );
+    const instances = [];
 
     sliders.forEach( ( slider ) => {
-        new Splide( slider, {
+        const splide = new Splide( slider, {
             type:        'slide',
             rewind:      false,
             arrows:      true,
@@ -25,5 +26,9 @@ export function initSliders() {
             keyboard:    true,
             accessibility: true,
         } ).mount();
+
+        instances.push( splide );
     } );
+
+    return instances;
 }

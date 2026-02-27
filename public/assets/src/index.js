@@ -14,7 +14,10 @@ import './index.css';
 
 // JS Starts
 import { initSliders } from './slider';
+import { initProgress } from './progress';
 
 document.addEventListener( 'DOMContentLoaded', () => {
-    initSliders();
+    const instances = initSliders();
+    console.log(instances);
+    instances.forEach( ( splide ) => initProgress( splide ) );
 } );
