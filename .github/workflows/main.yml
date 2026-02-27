@@ -1,0 +1,191 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build, Bump Version & Publish Release
+    runs-on: ubuntu-latest
+
+    # Skip if this push is the automated version-bump commit to avoid an
+    # infinite loop.
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history so we can inspect commits since the last tag.
+          fetch-depth: 0
+          # Use a token that can push back to the repo (set up in repo settings
+          # under Settings → Actions → Workflow permissions → Read & write).
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build
+
+      # -----------------------------------------------------------------------
+      # Determine the version bump from conventional commits since the last tag.
+      #
+      # Rules (in priority order):
+      #   BREAKING CHANGE in body, or ! after type  →  major
+      #   feat: or feat(<scope>):                    →  minor
+      #   fix: or anything else conventional         →  patch (default fallback)
+      # -----------------------------------------------------------------------
+      - name: Determine bump type from conventional commits
+        id: bump
+        run: |
+          # Find the last release tag (vX.Y.Z without a pre-release suffix).
+          LAST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' \
+            | grep -v -- '-' \
+            | sort -V \
+            | tail -n1)
+
+          if [ -z "$LAST_TAG" ]; then
+            echo "No prior release tag found; defaulting to patch bump."
+            BUMP="patch"
+          else
+            echo "Analysing commits since $LAST_TAG"
+            COMMITS=$(git log "$LAST_TAG"..HEAD --pretty=format:"%s %b")
+
+            if echo "$COMMITS" | grep -qE '(BREAKING CHANGE|^.+!:)'; then
+              BUMP="major"
+            elif echo "$COMMITS" | grep -qE '^feat(\(.+\))?:'; then
+              BUMP="minor"
+            else
+              BUMP="patch"
+            fi
+          fi
+
+          echo "bump=$BUMP" >> "$GITHUB_OUTPUT"
+          echo "Bump type: $BUMP"
+
+      # -----------------------------------------------------------------------
+      # Read the current version from the plugin header and compute the next
+      # version using pure bash arithmetic (no external tools required).
+      # -----------------------------------------------------------------------
+      - name: Compute next version
+        id: version
+        run: |
+          CURRENT=$(grep -m1 '^ \* Version:' learning-paths.php | awk '{print $3}')
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+
+          case "${{ steps.bump.outputs.bump }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+
+          NEXT="$MAJOR.$MINOR.$PATCH"
+          echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "Current: $CURRENT → Next: $NEXT (${BUMP} bump)"
+
+      # -----------------------------------------------------------------------
+      # Write the new version into the plugin PHP header and package.json,
+      # then commit and tag.
+      # -----------------------------------------------------------------------
+      - name: Bump version in learning-paths.php
+        run: |
+          CURRENT="${{ steps.version.outputs.current }}"
+          NEXT="${{ steps.version.outputs.next }}"
+          # Update the plugin header line: " * Version: X.Y.Z"
+          sed -i "s/^ \* Version: $CURRENT/ * Version: $NEXT/" learning-paths.php
+          # Also update the version constant if you define one, e.g.
+          # define( 'LEARNING_PATHS_VERSION', '1.2.3' );
+          # Uncomment the line below if applicable:
+          # sed -i "s/define( 'LEARNING_PATHS_VERSION', '$CURRENT' )/define( 'LEARNING_PATHS_VERSION', '$NEXT' )/" learning-paths.php
+
+      - name: Bump version in package.json
+        run: |
+          NEXT="${{ steps.version.outputs.next }}"
+          # npm version writes the version and creates a git tag; we skip the
+          # tag here because we create it ourselves below.
+          npm version "$NEXT" --no-git-tag-version
+
+      - name: Commit version bump
+        run: |
+          NEXT="${{ steps.version.outputs.next }}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add learning-paths.php package.json package-lock.json
+          git commit -m "chore: bump version to $NEXT [skip ci]"
+          git push origin main
+
+      # -----------------------------------------------------------------------
+      # Package the plugin — same exclusions as the PR workflow.
+      # -----------------------------------------------------------------------
+      - name: Create plugin zip
+        run: |
+          NEXT="${{ steps.version.outputs.next }}"
+          ZIP_NAME="learning-paths-v${NEXT}.zip"
+          zip -r "$ZIP_NAME" . \
+            --exclude "*.git*" \
+            --exclude ".github/*" \
+            --exclude "node_modules/*" \
+            --exclude "src/*" \
+            --exclude "package.json" \
+            --exclude "package-lock.json" \
+            --exclude "webpack.config.js" \
+            --exclude "*.zip"
+          echo "ZIP_NAME=$ZIP_NAME" >> "$GITHUB_ENV"
+
+      # -----------------------------------------------------------------------
+      # Generate a changelog from conventional commits for the release notes.
+      # -----------------------------------------------------------------------
+      - name: Generate changelog
+        id: changelog
+        run: |
+          LAST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' \
+            | grep -v -- '-' \
+            | sort -V \
+            | tail -n1)
+
+          if [ -z "$LAST_TAG" ]; then
+            REF="HEAD"
+          else
+            REF="$LAST_TAG..HEAD"
+          fi
+
+          # Collect commits grouped by type.
+          BREAKING=$(git log $REF --pretty=format:"- %s" | grep -E '(BREAKING CHANGE|!:)' || true)
+          FEATURES=$(git log $REF --pretty=format:"- %s" | grep -E '^- feat(\(.+\))?:' || true)
+          FIXES=$(git log $REF --pretty=format:"- %s" | grep -E '^- fix(\(.+\))?:' || true)
+          OTHERS=$(git log $REF --pretty=format:"- %s" \
+            | grep -vE '^- (feat|fix|chore|docs|style|refactor|test|ci|build)(\(.+\))?:' || true)
+
+          # Build the release notes string (GitHub multiline output trick).
+          {
+            echo 'notes<<EOF'
+            [ -n "$BREAKING" ] && echo -e "### ⚠️ Breaking Changes\n$BREAKING\n"
+            [ -n "$FEATURES" ] && echo -e "### ✨ New Features\n$FEATURES\n"
+            [ -n "$FIXES"    ] && echo -e "### 🐛 Bug Fixes\n$FIXES\n"
+            [ -n "$OTHERS"   ] && echo -e "### 🔧 Other Changes\n$OTHERS\n"
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.next }}
+          name: v${{ steps.version.outputs.next }}
+          prerelease: false
+          body: |
+            ${{ steps.changelog.outputs.notes }}
+          files: ${{ env.ZIP_NAME }}
