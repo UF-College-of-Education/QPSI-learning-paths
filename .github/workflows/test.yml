@@ -1,0 +1,97 @@
+name: PR Pre-Release
+
+on:
+  pull_request:
+    branches:
+      - test  # Fires when a feature branch opens a PR against test
+
+permissions:
+  contents: write
+
+jobs:
+  prerelease:
+    name: Build & Publish Pre-Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build
+
+      # Read the current version from the plugin PHP header.
+      # The header line is expected to be: " * Version: 1.2.3"
+      - name: Read current version
+        id: version
+        run: |
+          VERSION=$(grep -m1 '^ \* Version:' learning-paths.php | awk '{print $3}')
+          echo "current=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # Zip the plugin, excluding files that are only needed during development.
+      - name: Create plugin zip
+        run: |
+          ZIP_NAME="learning-paths-pr${{ github.event.pull_request.number }}.zip"
+          zip -r "$ZIP_NAME" . \
+            --exclude "*.git*" \
+            --exclude ".github/*" \
+            --exclude "node_modules/*" \
+            --exclude "src/*" \
+            --exclude "package.json" \
+            --exclude "package-lock.json" \
+            --exclude "webpack.config.js" \
+            --exclude "*.zip"
+          echo "ZIP_NAME=$ZIP_NAME" >> "$GITHUB_ENV"
+
+      # Tag format: v1.2.3-pr42
+      # The release is marked as a pre-release so it is clearly distinguishable
+      # from production releases. It will be deleted automatically when the PR
+      # is closed (see the cleanup job below).
+      - name: Publish pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.current }}-pr${{ github.event.pull_request.number }}
+          name: "PR #${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}"
+          prerelease: true
+          body: |
+            **Pre-release build for PR #${{ github.event.pull_request.number }}**
+
+            Branch: `${{ github.head_ref }}` → `test`
+            Commit: ${{ github.sha }}
+
+            This build is for testing purposes only and will be removed when the PR is closed.
+          files: ${{ env.ZIP_NAME }}
+
+  # Delete the pre-release and its tag when the PR is closed (merged or abandoned).
+  cleanup:
+    name: Delete Pre-Release on PR Close
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read current version
+        id: version
+        run: |
+          VERSION=$(grep -m1 '^ \* Version:' learning-paths.php | awk '{print $3}')
+          echo "current=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Delete pre-release and tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v${{ steps.version.outputs.current }}-pr${{ github.event.pull_request.number }}"
+          # Delete the release (ignore errors if it doesn't exist)
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          # Delete the tag
+          git push origin --delete "$TAG" 2>/dev/null || true
